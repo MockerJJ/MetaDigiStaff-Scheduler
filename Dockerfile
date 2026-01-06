@@ -11,9 +11,9 @@ RUN pnpm build
 # 后端构建阶段
 FROM docker.m.daocloud.io/library/maven:3.8-openjdk-17 as backend-builder
 WORKDIR /app
-COPY genie-backend/pom.xml .
-COPY genie-backend/src ./src
-COPY genie-backend/build.sh genie-backend/start.sh ./
+COPY scheduler-backend/pom.xml .
+COPY scheduler-backend/src ./src
+COPY scheduler-backend/build.sh genie-backend/start.sh ./
 RUN chmod +x build.sh start.sh
 RUN ./build.sh
 
@@ -71,7 +71,7 @@ COPY --from=frontend-builder /app/node_modules /app/ui/node_modules
 
 # 复制后端构建产物
 COPY --from=backend-builder /app/target /app/backend/target
-COPY genie-backend/start.sh /app/backend/
+COPY scheduler-backend/start.sh /app/backend/
 RUN chmod +x /app/backend/start.sh
 
 # 复制 Python 工具和依赖
@@ -80,9 +80,9 @@ COPY --from=python-base /usr/local/bin/uv /usr/local/bin/uv
 
 # 复制 genie-client
 WORKDIR /app/client
-COPY genie-client/pyproject.toml genie-client/uv.lock ./
-COPY genie-client/app ./app
-COPY genie-client/main.py genie-client/server.py genie-client/start.sh ./
+COPY scheduler-mcp-client/pyproject.toml genie-client/uv.lock ./
+COPY scheduler-mcp-client/app ./app
+COPY scheduler-mcp-client/main.py genie-client/server.py genie-client/start.sh ./
 RUN chmod +x start.sh && \
     uv venv .venv && \
     . .venv/bin/activate && \
@@ -90,9 +90,9 @@ RUN chmod +x start.sh && \
 
 # 复制 genie-tool
 WORKDIR /app/tool
-COPY genie-tool/pyproject.toml genie-tool/uv.lock ./
-COPY genie-tool/genie_tool ./genie_tool
-COPY genie-tool/server.py genie-tool/start.sh genie-tool/.env_template ./
+COPY scheduler-tool/pyproject.toml genie-tool/uv.lock ./
+COPY scheduler-tool/genie_tool ./genie_tool
+COPY scheduler-tool/server.py genie-tool/start.sh genie-tool/.env_template ./
 
 # 创建虚拟环境并安装依赖
 RUN chmod +x start.sh && \
