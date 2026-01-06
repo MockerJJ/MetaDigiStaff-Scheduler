@@ -11,7 +11,7 @@ import com.chinatelecom.scheduler.agent.tool.common.*;
 import com.chinatelecom.scheduler.agent.tool.mcp.McpTool;
 import com.chinatelecom.scheduler.agent.util.DateUtil;
 import com.chinatelecom.scheduler.agent.util.ThreadUtil;
-import com.jd.genie.agent.tool.common.*;
+import com.chinatelecom.scheduler.agent.tool.common.*;
 import com.chinatelecom.scheduler.config.GenieConfig;
 import com.chinatelecom.scheduler.model.req.AgentRequest;
 import com.chinatelecom.scheduler.model.req.GptQueryReq;

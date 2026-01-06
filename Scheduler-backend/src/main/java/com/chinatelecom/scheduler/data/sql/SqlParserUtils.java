@@ -2,7 +2,7 @@ package com.chinatelecom.scheduler.data.sql;
 
 import com.chinatelecom.scheduler.data.model.*;
 import com.chinatelecom.scheduler.data.jdbc.dialect.DialectEnum;
-import com.jd.genie.data.model.*;
+import com.chinatelecom.scheduler.data.model.*;
 import com.chinatelecom.scheduler.data.sql.dialect.ClickHouseSqlDialect2;
 import com.chinatelecom.scheduler.data.sql.dialect.MysqlCustomSqlDialect;
 import com.chinatelecom.scheduler.data.sql.dialect.SqlDialectUtil;
