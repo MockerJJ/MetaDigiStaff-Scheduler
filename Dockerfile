@@ -90,9 +90,9 @@ RUN chmod +x start.sh && \
 
 # 复制 genie-tool
 WORKDIR /app/tool
-COPY scheduler-tool/pyproject.toml genie-tool/uv.lock ./
-COPY scheduler-tool/genie_tool ./genie_tool
-COPY scheduler-tool/server.py genie-tool/start.sh genie-tool/.env_template ./
+COPY scheduler-tool-manager/pyproject.toml genie-tool/uv.lock ./
+COPY scheduler-tool-manager/tools ./genie_tool
+COPY scheduler-tool-manager/server.py genie-tool/start.sh genie-tool/.env_template ./
 
 # 创建虚拟环境并安装依赖
 RUN chmod +x start.sh && \

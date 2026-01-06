@@ -346,7 +346,7 @@ public class WeatherTool implements BaseTool {
 }
 ```
 
-在`com.jd.genie.controller.GenieController#buildToolCollection`中添加如下代码，引入自定义Agent
+在`controller.com.chinatelecom.scheduler.GenieController#buildToolCollection`中添加如下代码，引入自定义Agent
 
 ```java
 WeatherTool weatherTool = new WeatherTool();

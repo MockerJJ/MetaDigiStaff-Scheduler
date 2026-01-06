@@ -343,7 +343,7 @@ Implementing the BaseTool Interface: Declaring Tool Name, Description, Parameter
 }
 ```
 
-Add the following code in `com.jd.genie.controller.GenieController#buildToolCollection` to integrate custom Agent.
+Add the following code in `controller.com.chinatelecom.scheduler.GenieController#buildToolCollection` to integrate custom Agent.
 ```java
 WeatherTool weatherTool = new WeatherTool();
 toolCollection.addTool(weatherTool);
