@@ -5,7 +5,7 @@ import com.chinatelecom.scheduler.agent.agent.AgentContext;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.OkHttpUtil;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -61,8 +61,8 @@ public class McpTool implements BaseTool {
 
     public String listTool(String mcpServerUrl) {
         try {
-            GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-            String mcpClientUrl = genieConfig.getMcpClientUrl() + "/v1/tool/list";
+            SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+            String mcpClientUrl = schedulerConfig.getMcpClientUrl() + "/v1/tool/list";
             McpToolRequest mcpToolRequest = McpToolRequest.builder()
                     .server_url(mcpServerUrl)
                     .build();
@@ -77,8 +77,8 @@ public class McpTool implements BaseTool {
 
     public String callTool(String mcpServerUrl, String toolName, Object input) {
         try {
-            GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-            String mcpClientUrl = genieConfig.getMcpClientUrl() + "/v1/tool/call";
+            SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+            String mcpClientUrl = schedulerConfig.getMcpClientUrl() + "/v1/tool/call";
             Map<String, Object> params = (Map<String, Object>) input;
             McpToolRequest mcpToolRequest = McpToolRequest.builder()
                     .name(toolName)

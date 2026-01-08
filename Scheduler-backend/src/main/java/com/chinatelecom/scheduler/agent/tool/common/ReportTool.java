@@ -8,7 +8,7 @@ import com.chinatelecom.scheduler.agent.dto.File;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
 import com.chinatelecom.scheduler.agent.util.StringUtil;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -37,16 +37,16 @@ public class ReportTool implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "这是一个报告工具，可以通过编写HTML、MarkDown报告";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        return genieConfig.getReportToolDesc().isEmpty() ? desc : genieConfig.getReportToolDesc();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        return schedulerConfig.getReportToolDesc().isEmpty() ? desc : schedulerConfig.getReportToolDesc();
     }
 
     @Override
     public Map<String, Object> toParams() {
 
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getReportToolPamras().isEmpty()) {
-            return genieConfig.getReportToolPamras();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getReportToolPamras().isEmpty()) {
+            return schedulerConfig.getReportToolPamras();
         }
 
         Map<String, Object> taskParam = new HashMap<>();
@@ -119,8 +119,8 @@ public class ReportTool implements BaseTool {
                     .build();
 
             ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-            GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
-            String url = genieConfig.getCodeInterpreterUrl() + "/v1/tool/report";
+            SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
+            String url = schedulerConfig.getCodeInterpreterUrl() + "/v1/tool/report";
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
                     JSONObject.toJSONString(codeRequest)
@@ -132,7 +132,7 @@ public class ReportTool implements BaseTool {
                     .post(body);
             Request request = requestBuilder.build();
 
-            String[] interval = genieConfig.getMessageInterval().getOrDefault("report", "1,4").split(",");
+            String[] interval = schedulerConfig.getMessageInterval().getOrDefault("report", "1,4").split(",");
             int firstInterval = Integer.parseInt(interval[0]);
             int sendInterval = Integer.parseInt(interval[1]);
             client.newCall(request).enqueue(new Callback() {

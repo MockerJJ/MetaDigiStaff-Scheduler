@@ -2,26 +2,39 @@ import os
 
 import dotenv
 from openai import OpenAI
-from genie_tool.util.log_util import logger
+from tools.util.log_util import logger
+from tools.util.llm_config import get_llm_config
 dotenv.load_dotenv()
 
 
 class LLMClient:
-    """大模型客户端类"""
+    """大模型客户端类
+    
+    使用统一的 LLM 配置，根据环境变量 APP_ENV 自动选择开发环境或生产环境配置
+    """
 
-    # 配置环境变量
-    # API_KEY llm 大模型apikey
-    # LLM_MODEL_NAME 大模型名称
-    # LLM_MODEL_BASE_URL 大模型地址
     def __init__(self):
-        self.api_key = os.getenv("LLM_API_KEY")
-        self.model_name = os.getenv("LLM_MODEL_NAME")
-        self.model_base_url = os.getenv("LLM_MODEL_BASE_URL")
+        # 获取 LLM 配置
+        llm_config = get_llm_config()
+        
+        # 使用配置中的值
+        self.api_key = llm_config.get_api_key()
+        self.model_name = llm_config.get_model()
+        self.model_base_url = llm_config.get_base_url()
+        self.llm_config = llm_config
+        
+        # 获取 headers
+        headers = llm_config.get_headers()
+        
+        # 创建 OpenAI 客户端，使用配置的 base_url 和 headers
+        # OpenAI 客户端支持通过 default_headers 设置自定义 headers
         self.client = OpenAI(
-            api_key=self.api_key,
-            base_url=self.model_base_url
+            api_key=self.api_key or "dummy",  # OpenAI 客户端需要 api_key，即使不使用
+            base_url=self.model_base_url,
+            default_headers=headers
         )
-        logger.info("init LLM client, {base_url}".format(base_url=self.model_base_url))
+        logger.info("init LLM client, base_url={}, model={}, env={}".format(
+            self.model_base_url, self.model_name, llm_config.app_env))
 
     @staticmethod
     def convert_messages(prompt):
@@ -29,17 +42,31 @@ class LLMClient:
 
     def completions(self, messages, max_tokens=8192, temperature=0, stream=False):
         logger.info(f"chat completion\n{self.model_name}, {messages}")
+        
+        # 使用默认的 max_tokens（如果未指定）
+        if max_tokens == 8192:
+            max_tokens = self.llm_config.max_tokens
+        
+        # 使用默认的 temperature（如果未指定）
+        if temperature == 0:
+            temperature = self.llm_config.temperature
+        
+        # 使用 OpenAI 客户端发送请求
+        # default_headers 已经在初始化时设置
         completion = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
             temperature=temperature,
             stream=stream,
             max_tokens=max_tokens,
-            extra_body={"enable_thinking": False,
-                        "chat_template_kwargs": {
-                            "enable_thinking": False
-                        }}
+            extra_body={
+                "enable_thinking": False,
+                "chat_template_kwargs": {
+                    "enable_thinking": False
+                }
+            }
         )
+        
         if stream:
             return completion
         return completion.choices[0].message.content

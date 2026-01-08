@@ -13,11 +13,11 @@ from dotenv import load_dotenv
 from jinja2 import Template
 from loguru import logger
 
-from genie_tool.util.file_util import download_all_files, truncate_files, flatten_search_file
-from genie_tool.util.prompt_util import get_prompt
-from genie_tool.util.llm_util import ask_llm
-from genie_tool.util.log_util import timer
-from genie_tool.model.context import LLMModelInfoFactory
+from tools.util.file_util import download_all_files, truncate_files, flatten_search_file
+from tools.util.prompt_util import get_prompt
+from tools.util.llm_util import ask_llm
+from tools.util.log_util import timer
+from tools.model.context import LLMModelInfoFactory
 
 load_dotenv()
 

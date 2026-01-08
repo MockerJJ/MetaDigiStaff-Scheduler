@@ -13,8 +13,8 @@
     <groupId>com.example</groupId>
     <artifactId>scheduler-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>genie-backend</name>
-    <description>Genie backend service</description>
+    <name>scheduler-backend</name>
+    <description>MetaDigiStaff Scheduler backend service</description>
 
     <properties>
         <java.version>17</java.version>

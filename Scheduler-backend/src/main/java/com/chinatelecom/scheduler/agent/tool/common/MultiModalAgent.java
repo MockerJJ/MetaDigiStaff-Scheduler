@@ -8,7 +8,7 @@ import com.chinatelecom.scheduler.agent.dto.MultiModalAgentResponse;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
 import com.chinatelecom.scheduler.agent.util.StringUtil;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -35,15 +35,15 @@ public class MultiModalAgent implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "本工具用于查询与用户相关的知识，作为在线知识的补充。支持文本和图像等多模态数据检索，能够高效访问和获取用户专属的知识信息。";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        return genieConfig.getMultiModalAgentDesc().isEmpty() ? desc : genieConfig.getMultiModalAgentDesc();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        return schedulerConfig.getMultiModalAgentDesc().isEmpty() ? desc : schedulerConfig.getMultiModalAgentDesc();
     }
 
     @Override
     public Map<String, Object> toParams() {
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getMultiModalAgentPamras().isEmpty()) {
-            return genieConfig.getMultiModalAgentPamras();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getMultiModalAgentPamras().isEmpty()) {
+            return schedulerConfig.getMultiModalAgentPamras();
         }
 
         Map<String, Object> questionParam = new HashMap<>();
@@ -109,8 +109,8 @@ public class MultiModalAgent implements BaseTool {
                     .build();
 
             ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-            GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
-            String url = genieConfig.getMultiModalAgentUrl() + "/v1/tool/mragQuery";
+            SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
+            String url = schedulerConfig.getMultiModalAgentUrl() + "/v1/tool/mragQuery";
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
                     JSONObject.toJSONString(multiModalAgentRequest)
@@ -122,7 +122,7 @@ public class MultiModalAgent implements BaseTool {
                     .addHeader("Content-Type", "application/json");
             Request request = requestBuilder.build();
             // log.info("{} knowledge_tool recv data: {}", agentContext.getRequestId(), data);
-            String[] interval = genieConfig.getMessageInterval().getOrDefault("knowledge", "1,4").split(",");
+            String[] interval = schedulerConfig.getMessageInterval().getOrDefault("knowledge", "1,4").split(",");
             int firstInterval = Integer.parseInt(interval[0]);
             int sendInterval = Integer.parseInt(interval[1]);
             
@@ -205,7 +205,7 @@ public class MultiModalAgent implements BaseTool {
 
                                                 String fileName = StringUtil.removeSpecialChars(  agentContext.getQuery() + "的多模态检索结果.md");
                                                 String fileDesc = allTokensBuilder.toString()
-                                                        .substring(0, Math.min(allTokensBuilder.toString().length(), genieConfig.getDeepSearchToolFileDescTruncateLen())) + "...";
+                                                        .substring(0, Math.min(allTokensBuilder.toString().length(), schedulerConfig.getDeepSearchToolFileDescTruncateLen())) + "...";
                                                 FileRequest fileRequest = FileRequest.builder()
                                                         .requestId(agentContext.getRequestId())
                                                         .fileName(fileName)

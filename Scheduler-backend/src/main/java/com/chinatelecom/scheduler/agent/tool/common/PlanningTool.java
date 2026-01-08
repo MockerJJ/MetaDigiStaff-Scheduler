@@ -4,7 +4,7 @@ import com.chinatelecom.scheduler.agent.agent.AgentContext;
 import com.chinatelecom.scheduler.agent.dto.Plan;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 
 import java.util.*;
@@ -36,15 +36,15 @@ public class PlanningTool implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "这是一个计划工具，可让代理创建和管理用于解决复杂任务的计划。\n该工具提供创建计划、更新计划步骤和跟踪进度的功能。\n使用中文回答";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        return genieConfig.getPlanToolDesc().isEmpty() ? desc : genieConfig.getPlanToolDesc();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        return schedulerConfig.getPlanToolDesc().isEmpty() ? desc : schedulerConfig.getPlanToolDesc();
     }
 
     @Override
     public Map<String, Object> toParams() {
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getPlanToolParams().isEmpty()) {
-            return genieConfig.getPlanToolParams();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getPlanToolParams().isEmpty()) {
+            return schedulerConfig.getPlanToolParams();
         }
 
         return getParameters();

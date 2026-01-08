@@ -4,9 +4,9 @@ from typing import List
 from fastapi import UploadFile
 from sqlmodel import select
 
-from genie_tool.db.file_table import FileInfo
-from genie_tool.db.db_engine import async_session_local
-from genie_tool.util.log_util import timer
+from tools.db.file_table import FileInfo
+from tools.db.db_engine import async_session_local
+from tools.util.log_util import timer
 
 
 class _FileDB(object):

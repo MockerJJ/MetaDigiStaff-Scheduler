@@ -11,7 +11,7 @@ import com.chinatelecom.scheduler.agent.llm.LLM;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.FileUtil;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.model.response.AgentResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,7 +40,7 @@ public class ExecutorAgent extends ReActAgent {
         setName("executor");
         setDescription("an agent that can execute tool calls.");
         ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-        GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
+        SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
 
         StringBuilder toolPrompt = new StringBuilder();
         for (BaseTool tool : context.getToolCollection().getToolMap().values()) {
@@ -50,32 +50,32 @@ public class ExecutorAgent extends ReActAgent {
         String promptKey = "default";
         String sopPromptKey = "default";
         String nextPromptKey = "default";
-        setSystemPrompt(genieConfig.getExecutorSystemPromptMap().getOrDefault(promptKey, ToolCallPrompt.SYSTEM_PROMPT)
+        setSystemPrompt(schedulerConfig.getExecutorSystemPromptMap().getOrDefault(promptKey, ToolCallPrompt.SYSTEM_PROMPT)
                 .replace("{{tools}}", toolPrompt.toString())
                 .replace("{{query}}", context.getQuery())
                 .replace("{{date}}", context.getDateInfo())
                 .replace("{{sopPrompt}}", context.getSopPrompt())
-                .replace("{{executorSopPrompt}}", genieConfig.getExecutorSopPromptMap().getOrDefault(sopPromptKey, "")));
-        setNextStepPrompt(genieConfig.getExecutorNextStepPromptMap().getOrDefault(nextPromptKey, ToolCallPrompt.NEXT_STEP_PROMPT)
+                .replace("{{executorSopPrompt}}", schedulerConfig.getExecutorSopPromptMap().getOrDefault(sopPromptKey, "")));
+        setNextStepPrompt(schedulerConfig.getExecutorNextStepPromptMap().getOrDefault(nextPromptKey, ToolCallPrompt.NEXT_STEP_PROMPT)
                 .replace("{{tools}}", toolPrompt.toString())
                 .replace("{{query}}", context.getQuery())
                 .replace("{{date}}", context.getDateInfo())
                 .replace("{{sopPrompt}}", context.getSopPrompt())
-                .replace("{{executorSopPrompt}}", genieConfig.getExecutorSopPromptMap().getOrDefault(sopPromptKey, "")));
+                .replace("{{executorSopPrompt}}", schedulerConfig.getExecutorSopPromptMap().getOrDefault(sopPromptKey, "")));
 
         setSystemPromptSnapshot(getSystemPrompt());
         setNextStepPromptSnapshot(getNextStepPrompt());
 
         setPrinter(context.printer);
-        setMaxSteps(genieConfig.getPlannerMaxSteps());
-        setLlm(new LLM(genieConfig.getExecutorModelName(), ""));
+        setMaxSteps(schedulerConfig.getPlannerMaxSteps());
+        setLlm(new LLM(schedulerConfig.getExecutorModelName(), ""));
 
         setContext(context);
-        setMaxObserve(Integer.parseInt(genieConfig.getMaxObserve()));
+        setMaxObserve(Integer.parseInt(schedulerConfig.getMaxObserve()));
 
         // 初始化工具集合
         availableTools = context.getToolCollection();
-        setDigitalEmployeePrompt(genieConfig.getDigitalEmployeePrompt());
+        setDigitalEmployeePrompt(schedulerConfig.getDigitalEmployeePrompt());
 
         setTaskId(0);
     }
@@ -143,15 +143,15 @@ public class ExecutorAgent extends ReActAgent {
     @Override
     public String act() {
         if (toolCalls.isEmpty()) {
-            GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
+            SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
             setState(AgentState.FINISHED);
             // 删除工具结果
-            if ("1".equals(genieConfig.getClearToolMessage())) {
+            if ("1".equals(schedulerConfig.getClearToolMessage())) {
                 getMemory().clearToolContext();
             }
             // 返回固定话术
-            if (!genieConfig.getTaskCompleteDesc().isEmpty()) {
-                return genieConfig.getTaskCompleteDesc();
+            if (!schedulerConfig.getTaskCompleteDesc().isEmpty()) {
+                return schedulerConfig.getTaskCompleteDesc();
             }
             return getMemory().getLastMessage().getContent();
         }
@@ -192,8 +192,8 @@ public class ExecutorAgent extends ReActAgent {
     @Override
     public String run(String request) {
         generateDigitalEmployee(request);
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        request = genieConfig.getTaskPrePrompt() + request;
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        request = schedulerConfig.getTaskPrePrompt() + request;
         // 更新当前task
         context.setTask(request);
         return super.run(request);

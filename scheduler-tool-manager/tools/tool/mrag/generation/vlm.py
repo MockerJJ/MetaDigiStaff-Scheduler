@@ -6,8 +6,8 @@ from pathlib import Path
 
 from openai import OpenAI
 
-from genie_tool.tool.mrag.utils import download_utils
-from genie_tool.tool.mrag.utils.logger_utils import logger
+from tools.tool.mrag.utils import download_utils
+from tools.tool.mrag.utils.logger_utils import logger
 
 class VLLMClient:
     """大模型客户端类"""

@@ -22,8 +22,8 @@ from scipy.optimize import curve_fit
 from scipy.stats import norm, t, logistic, linregress, pearsonr
 from scipy.signal import find_peaks
 
-from genie_tool.tool.analysis_component.data_model import DataModel, Measure, SiblingGroup, SiblingGroupContainer
-from genie_tool.util.log_util import timer
+from tools.tool.analysis_component.data_model import DataModel, Measure, SiblingGroup, SiblingGroupContainer
+from tools.util.log_util import timer
 
 
 def np_type_trans(val):

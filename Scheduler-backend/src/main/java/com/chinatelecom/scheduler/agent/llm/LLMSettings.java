@@ -70,4 +70,24 @@ public class LLMSettings {
      */
     private Map<String, Object> extParams;
 
+    /**
+     * 应用环境（production/prod 为生产环境，其他为开发环境）
+     */
+    private String appEnv;
+
+    /**
+     * Dcoos appId
+     */
+    private String appId;
+
+    /**
+     * Dcoos appKey
+     */
+    private String appKey;
+
+    /**
+     * 是否使用完整 URL（如果为 true，baseUrl 应包含完整路径，不需要拼接 interfaceUrl）
+     */
+    private Boolean useFullUrl;
+
 }

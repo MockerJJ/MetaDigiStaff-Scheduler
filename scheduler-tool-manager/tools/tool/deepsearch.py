@@ -12,17 +12,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial
 from typing import List, AsyncGenerator, Tuple
 
-from genie_tool.util.log_util import logger
-from genie_tool.util.llm_util import ask_llm
-from genie_tool.model.document import Doc
-from genie_tool.util.log_util import timer
-from genie_tool.tool.search_component.query_process import query_decompose
-from genie_tool.tool.search_component.answer import answer_question
-from genie_tool.tool.search_component.reasoning import search_reasoning
-from genie_tool.tool.search_component.search_engine import MixSearch
-from genie_tool.model.protocal import StreamMode
-from genie_tool.util.file_util import truncate_files
-from genie_tool.model.context import LLMModelInfoFactory
+from tools.util.log_util import logger
+from tools.util.llm_util import ask_llm
+from tools.model.document import Doc
+from tools.util.log_util import timer
+from tools.tool.search_component.query_process import query_decompose
+from tools.tool.search_component.answer import answer_question
+from tools.tool.search_component.reasoning import search_reasoning
+from tools.tool.search_component.search_engine import MixSearch
+from tools.model.protocal import StreamMode
+from tools.util.file_util import truncate_files
+from tools.model.context import LLMModelInfoFactory
 
 
 class DeepSearch:

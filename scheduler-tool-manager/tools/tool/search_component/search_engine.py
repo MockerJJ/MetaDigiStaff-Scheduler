@@ -14,8 +14,8 @@ from typing import List
 import aiohttp
 from bs4 import BeautifulSoup
 
-from genie_tool.model.document import Doc
-from genie_tool.util.log_util import timer
+from tools.model.document import Doc
+from tools.util.log_util import timer
 
 
 class SearchBase(ABC):

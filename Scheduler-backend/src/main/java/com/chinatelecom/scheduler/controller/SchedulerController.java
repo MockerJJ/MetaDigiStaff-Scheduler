@@ -11,8 +11,7 @@ import com.chinatelecom.scheduler.agent.tool.common.*;
 import com.chinatelecom.scheduler.agent.tool.mcp.McpTool;
 import com.chinatelecom.scheduler.agent.util.DateUtil;
 import com.chinatelecom.scheduler.agent.util.ThreadUtil;
-import com.chinatelecom.scheduler.agent.tool.common.*;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.model.req.AgentRequest;
 import com.chinatelecom.scheduler.model.req.GptQueryReq;
 import com.chinatelecom.scheduler.service.AgentHandlerService;
@@ -39,11 +38,11 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/")
-public class GenieController {
+public class SchedulerController {
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
     private static final long HEARTBEAT_INTERVAL = 10_000L; // 10秒心跳间隔
     @Autowired
-    protected GenieConfig genieConfig;
+    protected SchedulerConfig schedulerConfig;
     @Autowired
     private AgentHandlerFactory agentHandlerFactory;
     @Autowired
@@ -125,6 +124,7 @@ public class GenieController {
                         .requestId(request.getRequestId())
                         .sessionId(request.getRequestId())
                         .printer(printer)
+
                         .query(request.getQuery())
                         .task("")
                         .dateInfo(DateUtil.CurrentDateInfo())
@@ -161,7 +161,7 @@ public class GenieController {
      */
     private String handleOutputStyle(AgentRequest request) {
         String query = request.getQuery();
-        Map<String, String> outputStyleMap = genieConfig.getOutputStylePrompts();
+        Map<String, String> outputStyleMap = schedulerConfig.getOutputStylePrompts();
         if (!StringUtils.isEmpty(request.getOutputStyle())) {
             query += outputStyleMap.computeIfAbsent(request.getOutputStyle(), k -> "");
         }
@@ -196,7 +196,7 @@ public class GenieController {
             fileTool.setAgentContext(agentContext);
             toolCollection.addTool(fileTool);
             // default tool
-            List<String> agentToolList = Arrays.asList(genieConfig.getMultiAgentToolListMap()
+            List<String> agentToolList = Arrays.asList(schedulerConfig.getMultiAgentToolListMap()
                     .getOrDefault("default", "search,code,report,multimodalagent").split(","));
             if (!agentToolList.isEmpty()) {
                 if (agentToolList.contains("code")) {
@@ -231,7 +231,7 @@ public class GenieController {
         try {
             McpTool mcpTool = new McpTool();
             mcpTool.setAgentContext(agentContext);
-            for (String mcpServer : genieConfig.getMcpServerUrlArr()) {
+            for (String mcpServer : schedulerConfig.getMcpServerUrlArr()) {
                 String listToolResult = mcpTool.listTool(mcpServer);
                 if (listToolResult.isEmpty()) {
                     log.error("{} mcp server {} invalid", agentContext.getRequestId(), mcpServer);

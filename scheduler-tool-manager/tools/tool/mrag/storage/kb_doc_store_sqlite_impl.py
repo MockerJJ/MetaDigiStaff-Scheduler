@@ -5,8 +5,8 @@ from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
-from genie_tool.tool.mrag.storage.kb_doc_store import KBDocStore
-from genie_tool.tool.mrag.storage.models.kb_doc_model import KBDocModel as KBDocPydanticModel
+from tools.tool.mrag.storage.kb_doc_store import KBDocStore
+from tools.tool.mrag.storage.models.kb_doc_model import KBDocModel as KBDocPydanticModel
 
 Base = declarative_base()
 

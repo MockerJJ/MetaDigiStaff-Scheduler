@@ -20,7 +20,7 @@ LOGFILE="$LOGDIR/${APP_NAME}_startup.log"
 # 应用jar包和conf文件所在路径 最终也要包含在应用进程里，是获取进程的依据
 CLASSPATH="$BASEDIR/conf/:$BASEDIR/lib/*"
 # MAIN_MODULE根据不同应用自行配置
-MAIN_MODULE="com.chinatelecom.scheduler.GenieApplication"
+MAIN_MODULE="com.chinatelecom.scheduler.SchedulerMainApplication"
 
 #项目名
 PROJECT_NAME="genie-backend"

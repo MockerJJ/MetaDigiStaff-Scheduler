@@ -12,10 +12,10 @@ from jinja2 import Template
 from dotenv import load_dotenv
 from dataclasses import dataclass, fields
 
-from genie_tool.tool.table_rag.utils import get_rerank
-from genie_tool.util.log_util import logger, timer
-from genie_tool.util.prompt_util import get_prompt
-from genie_tool.util.qdrant_utils import QdrantRecall, EmbeddingClient
+from tools.tool.table_rag.utils import get_rerank
+from tools.util.log_util import logger, timer
+from tools.util.prompt_util import get_prompt
+from tools.util.qdrant_utils import QdrantRecall, EmbeddingClient
 
 load_dotenv()
 # 工具数量大于此参数时触发工具过滤

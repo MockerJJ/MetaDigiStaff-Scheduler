@@ -15,8 +15,8 @@ from typing import List, Dict, Any
 import aiohttp
 from loguru import logger
 
-from genie_tool.util.log_util import timer
-from genie_tool.model.document import Doc
+from tools.util.log_util import timer
+from tools.model.document import Doc
 
 
 @timer()

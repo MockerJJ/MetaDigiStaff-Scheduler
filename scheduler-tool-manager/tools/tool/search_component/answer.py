@@ -8,9 +8,9 @@
 import os
 import time
 
-from genie_tool.util.llm_util import ask_llm
-from genie_tool.util.log_util import timer
-from genie_tool.util.prompt_util import get_prompt
+from tools.util.llm_util import ask_llm
+from tools.util.log_util import timer
+from tools.util.prompt_util import get_prompt
 
 
 @timer()

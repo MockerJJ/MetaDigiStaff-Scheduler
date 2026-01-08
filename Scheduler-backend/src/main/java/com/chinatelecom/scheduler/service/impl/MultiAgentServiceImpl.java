@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.chinatelecom.scheduler.agent.enums.AgentType;
 import com.chinatelecom.scheduler.agent.enums.AutoBotsResultStatus;
 import com.chinatelecom.scheduler.agent.enums.ResponseTypeEnum;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.handler.AgentResponseHandler;
 import com.chinatelecom.scheduler.model.dto.AutoBotsResult;
 import com.chinatelecom.scheduler.model.multi.EventResult;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class MultiAgentServiceImpl implements IMultiAgentService {
     @Autowired
-    private GenieConfig genieConfig;
+    private SchedulerConfig schedulerConfig;
     @Autowired
     private Map<AgentType, AgentResponseHandler> handlerMap;
 
@@ -57,9 +57,9 @@ public class MultiAgentServiceImpl implements IMultiAgentService {
         log.info("{} agentRequest:{}", autoReq.getRequestId(), JSON.toJSONString(request));
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS) // 设置连接超时时间为 60 秒
-                .readTimeout(genieConfig.getSseClientReadTimeout(), TimeUnit.SECONDS)    // 设置读取超时时间为 60 秒
+                .readTimeout(schedulerConfig.getSseClientReadTimeout(), TimeUnit.SECONDS)    // 设置读取超时时间为 60 秒
                 .writeTimeout(1800, TimeUnit.SECONDS)   // 设置写入超时时间为 60 秒
-                .callTimeout(genieConfig.getSseClientConnectTimeout(), TimeUnit.SECONDS)    // 设置调用超时时间为 60 秒
+                .callTimeout(schedulerConfig.getSseClientConnectTimeout(), TimeUnit.SECONDS)    // 设置调用超时时间为 60 秒
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -161,8 +161,8 @@ public class MultiAgentServiceImpl implements IMultiAgentService {
         request.setErp(req.getUser());
         request.setQuery(req.getQuery());
         request.setAgentType(req.getDeepThink() == 0 ? 5: 3);
-        request.setSopPrompt(request.getAgentType() == 3 ? genieConfig.getGenieSopPrompt(): "");
-        request.setBasePrompt(request.getAgentType() == 5 ? genieConfig.getGenieBasePrompt() : "");
+        request.setSopPrompt(request.getAgentType() == 3 ? schedulerConfig.getGenieSopPrompt(): "");
+        request.setBasePrompt(request.getAgentType() == 5 ? schedulerConfig.getGenieBasePrompt() : "");
         request.setIsStream(true);
         request.setOutputStyle(req.getOutputStyle());
 

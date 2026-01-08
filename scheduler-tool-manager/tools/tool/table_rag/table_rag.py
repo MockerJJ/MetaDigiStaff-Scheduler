@@ -14,13 +14,13 @@ from typing import List, Dict, Any, Optional
 from textwrap import dedent
 from jinja2 import Template
 
-from genie_tool.util.llm_util import ask_llm
-from genie_tool.util.log_util import logger
+from tools.util.llm_util import ask_llm
+from tools.util.log_util import logger
 
-from genie_tool.util.prompt_util import get_prompt
-from genie_tool.tool.table_rag.retriever import Retriever
-from genie_tool.tool.table_rag.utils import read_json, is_numeric, desired_field_order, sort_dict_list_by_keys
-from genie_tool.tool.table_rag.table_column_filter import ColumnFilterModule
+from tools.util.prompt_util import get_prompt
+from tools.tool.table_rag.retriever import Retriever
+from tools.tool.table_rag.utils import read_json, is_numeric, desired_field_order, sort_dict_list_by_keys
+from tools.tool.table_rag.table_column_filter import ColumnFilterModule
 
 class TableAgent:
     def __init__(

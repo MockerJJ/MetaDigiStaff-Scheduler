@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  # Backend + Tool Manager + MCP Client 服务
+  scheduler-backend-tool:
+    build:
+      context: ..
+      dockerfile: dev-ops/scheduler-backend-and-tool/Dockerfile
+    image: scheduler-backend-tool:latest
+    container_name: scheduler-backend-tool
+    ports:
+      - "8080:8080"  # Backend (Java Spring Boot)
+      - "1601:1601"  # Tool Manager (Python FastAPI)
+      - "8188:8188"  # MCP Client (Python FastAPI)
+    environment:
+      APP_ENV: dev
+      TZ: Asia/Shanghai
+    volumes:
+      - scheduler-data:/data/scheduler-tool-manager
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --max-time 5 http://localhost:8080/web/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
+  # UI 前端服务（严格按照原有 Dockerfile：使用 vite preview，端口 3000）
+  scheduler-ui:
+    build:
+      context: ..
+      dockerfile: dev-ops/scheduler-ui/Dockerfile
+    image: scheduler-ui:latest
+    container_name: scheduler-ui
+    ports:
+      - "3000:3000"  # Vite preview 端口（不是 nginx 的 80）
+    environment:
+      SERVICE_BASE_URL: http://scheduler-backend-tool:8080
+      TZ: Asia/Shanghai
+    depends_on:
+      scheduler-backend-tool:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  scheduler-data:
+    driver: local
+
+networks:
+  default:
+    name: scheduler-net
+

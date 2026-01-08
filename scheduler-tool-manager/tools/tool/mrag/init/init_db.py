@@ -3,8 +3,8 @@ import os
 import dotenv
 import requests
 
-from genie_tool.tool.mrag.storage import VectorStore
-from genie_tool.tool.mrag.utils.oss_utils import upload_local_storage
+from tools.tool.mrag.storage import VectorStore
+from tools.tool.mrag.utils.oss_utils import upload_local_storage
 
 dotenv.load_dotenv()
 

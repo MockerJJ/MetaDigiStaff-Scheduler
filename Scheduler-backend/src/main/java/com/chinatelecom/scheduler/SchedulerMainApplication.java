@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @MapperScan("com.chinatelecom.scheduler.mapper")
 @SpringBootApplication
-public class GenieApplication {
+public class SchedulerMainApplication {
     public static void main(String[] args) {
-        SpringApplication.run(GenieApplication.class, args);
+        SpringApplication.run(SchedulerMainApplication.class, args);
     }
 }

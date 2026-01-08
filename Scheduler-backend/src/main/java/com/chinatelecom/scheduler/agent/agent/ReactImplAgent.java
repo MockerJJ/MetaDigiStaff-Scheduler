@@ -11,7 +11,7 @@ import com.chinatelecom.scheduler.agent.llm.LLM;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.FileUtil;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.model.response.AgentResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -38,7 +38,7 @@ public class ReactImplAgent extends ReActAgent {
         setName("react");
         setDescription("an agent that can execute tool calls.");
         ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-        GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
+        SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
 
         StringBuilder toolPrompt = new StringBuilder();
         for (BaseTool tool : context.getToolCollection().getToolMap().values()) {
@@ -48,12 +48,12 @@ public class ReactImplAgent extends ReActAgent {
         String promptKey = "default";
         String nextPromptKey = "default";
 
-        setSystemPrompt(genieConfig.getReactSystemPromptMap().getOrDefault(promptKey, ToolCallPrompt.SYSTEM_PROMPT)
+        setSystemPrompt(schedulerConfig.getReactSystemPromptMap().getOrDefault(promptKey, ToolCallPrompt.SYSTEM_PROMPT)
                 .replace("{{tools}}", toolPrompt.toString())
                 .replace("{{query}}", context.getQuery())
                 .replace("{{date}}", context.getDateInfo())
                 .replace("{{basePrompt}}", context.getBasePrompt()));
-        setNextStepPrompt(genieConfig.getReactNextStepPromptMap().getOrDefault(nextPromptKey, ToolCallPrompt.NEXT_STEP_PROMPT)
+        setNextStepPrompt(schedulerConfig.getReactNextStepPromptMap().getOrDefault(nextPromptKey, ToolCallPrompt.NEXT_STEP_PROMPT)
                 .replace("{{tools}}", toolPrompt.toString())
                 .replace("{{query}}", context.getQuery())
                 .replace("{{date}}", context.getDateInfo())
@@ -63,13 +63,13 @@ public class ReactImplAgent extends ReActAgent {
         setNextStepPromptSnapshot(getNextStepPrompt());
 
         setPrinter(context.printer);
-        setMaxSteps(genieConfig.getReactMaxSteps());
-        setLlm(new LLM(genieConfig.getReactModelName(), ""));
+        setMaxSteps(schedulerConfig.getReactMaxSteps());
+        setLlm(new LLM(schedulerConfig.getReactModelName(), ""));
         setContext(context);
 
         // 初始化工具集合
         availableTools = context.getToolCollection();
-        setDigitalEmployeePrompt(genieConfig.getDigitalEmployeePrompt());
+        setDigitalEmployeePrompt(schedulerConfig.getDigitalEmployeePrompt());
     }
 
     @Override

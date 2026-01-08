@@ -1,1 +1,1 @@
-from genie_tool.util.log_util import logger
+from tools.util.log_util import logger

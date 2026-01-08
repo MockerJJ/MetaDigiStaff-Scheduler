@@ -8,9 +8,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 配置文件路径
-CONFIG_FILE="genie-backend/src/main/resources/application.yml"
-ENV_TEMPLATE="genie-tool/.env_template"
-ENV_FILE="genie-tool/.env"
+CONFIG_FILE="scheduler-backend/src/main/resources/application.yml"
+ENV_TEMPLATE="scheduler-tool-manager/.env_template"
+ENV_FILE="scheduler-tool-manager/.env"
 
 # 检查配置是否完成
 check_config_completed() {
@@ -101,7 +101,7 @@ init_setup() {
     
     # 1. 后端构建
     echo -e "${BLUE}🔨 构建后端项目...${NC}"
-    cd genie-backend
+    cd scheduler-backend
     if sh build.sh; then
         echo -e "${GREEN}✅ 后端构建成功${NC}"
     else
@@ -113,7 +113,7 @@ init_setup() {
     
     # 2. 工具服务数据库初始化
     echo -e "${BLUE}🗄️  初始化工具服务数据库...${NC}"
-    cd genie-tool
+    cd scheduler-tool-manager
     
     # 检查虚拟环境
     if [ ! -d ".venv" ]; then
@@ -124,7 +124,7 @@ init_setup() {
     # 激活虚拟环境并初始化数据库
     source .venv/bin/activate
     echo -e "${BLUE}初始化数据库...${NC}"
-    if python -m genie_tool.db.db_engine; then
+    if python -m tools.db.db_engine; then
         echo -e "${GREEN}✅ 数据库初始化成功${NC}"
     else
         echo -e "${RED}❌ 数据库初始化失败${NC}"
@@ -135,12 +135,12 @@ init_setup() {
     
     # 3. MCP客户端虚拟环境创建
     echo -e "${BLUE}🔌 创建MCP客户端虚拟环境...${NC}"
-    cd genie-client
+    cd scheduler-mcp-client
     
-    # 检查虚拟环境
+    # 检查虚拟环境，使用 uv sync 来创建并安装依赖
     if [ ! -d ".venv" ]; then
-        echo -e "${BLUE}创建Python虚拟环境...${NC}"
-        uv venv
+        echo -e "${BLUE}创建Python虚拟环境并安装依赖...${NC}"
+        uv sync
     fi
     cd ..
     
@@ -166,7 +166,7 @@ start_frontend() {
 # 启动后端服务
 start_backend() {
     echo -e "${BLUE}🔧 启动后端服务...${NC}"
-    cd genie-backend
+    cd scheduler-backend
     
     # 启动服务
     if [ -f "start.sh" ]; then
@@ -184,7 +184,7 @@ start_backend() {
 # 启动工具服务
 start_tool_service() {
     echo -e "${BLUE}🛠️  启动工具服务...${NC}"
-    cd genie-tool
+    cd scheduler-tool-manager
     
     # 检查虚拟环境
     if [ ! -d ".venv" ]; then
@@ -211,17 +211,15 @@ start_tool_service() {
 # 启动MCP客户端服务
 start_mcp_client() {
     echo -e "${BLUE}🔌 启动MCP客户端服务...${NC}"
-    cd genie-client
+    cd scheduler-mcp-client
     
     # 检查虚拟环境
     if [ ! -d ".venv" ]; then
-        echo -e "${BLUE}创建Python虚拟环境...${NC}"
-        uv venv
+        echo -e "${BLUE}创建Python虚拟环境并安装依赖...${NC}"
+        uv sync
     fi
     
-    # 激活虚拟环境并启动
-    source .venv/bin/activate
-    
+    # 启动服务（start.sh 使用 uv run，会自动处理虚拟环境）
     if [ -f "start.sh" ]; then
         sh start.sh &
         MCP_PID=$!
@@ -366,8 +364,8 @@ show_service_info() {
     echo "=================================="
     echo -e "${YELLOW}💡 提示：${NC}"
     echo -e "  - 使用 Ctrl+C 停止所有服务"
-    echo -e "  - 查看日志: tail -f genie-backend/genie-backend_startup.log"
-    echo -e "  - 重新启动: ./start_genie_one_click.sh"
+    echo -e "  - 查看日志: tail -f scheduler-backend/scheduler-backend_startup.log"
+    echo -e "  - 重新启动: ./scheduler_start.sh"
     echo "=================================="
 }
 
@@ -412,8 +410,8 @@ cleanup() {
     done
     
     # 清理临时文件
-    rm -f genie-backend/src/main/resources/application.yml.bak
-    rm -f genie-tool/.env.bak
+    rm -f scheduler-backend/src/main/resources/application.yml.bak
+    rm -f scheduler-tool-manager/.env.bak
     
     echo -e "${GREEN}🎉 所有服务已停止${NC}"
     exit 0

@@ -16,8 +16,8 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
-from genie_tool.model.context import RequestIdCtx
-from genie_tool.util.log_util import AsyncTimer
+from tools.model.context import RequestIdCtx
+from tools.util.log_util import AsyncTimer
 
 
 class UnknownException(BaseHTTPMiddleware):

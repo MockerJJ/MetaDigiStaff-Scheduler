@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  // 设置默认的 SERVICE_BASE_URL，如果环境变量未设置
+  const serviceBaseUrl = env.SERVICE_BASE_URL || 'http://localhost:8080'
   return {
     plugins: [
       react(),
@@ -24,14 +26,14 @@ export default defineConfig(({ command, mode }) => {
       allowedHosts: true,
       proxy: {
         '/web': {
-          target: env.SERVICE_BASE_URL,
+          target: serviceBaseUrl,
           changeOrigin: true,
         },
       },
     },
     define: {
       // 一定要序列化，否则打包时会报错
-      SERVICE_BASE_URL: JSON.stringify(env.SERVICE_BASE_URL),
+      SERVICE_BASE_URL: JSON.stringify(serviceBaseUrl),
     },
     build: {
       outDir: 'dist',

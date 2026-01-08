@@ -12,7 +12,7 @@ import time
 import traceback
 from loguru import logger
 
-from genie_tool.model.context import RequestIdCtx
+from tools.model.context import RequestIdCtx
 
 
 class Timer(object):

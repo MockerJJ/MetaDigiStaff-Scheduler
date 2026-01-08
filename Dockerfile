@@ -13,9 +13,10 @@ FROM docker.m.daocloud.io/library/maven:3.8-openjdk-17 as backend-builder
 WORKDIR /app
 COPY scheduler-backend/pom.xml .
 COPY scheduler-backend/src ./src
-COPY scheduler-backend/build.sh genie-backend/start.sh ./
-RUN chmod +x build.sh start.sh
-RUN ./build.sh
+COPY scheduler-backend/build.sh scheduler-backend/start.sh ./
+RUN sed -i 's/\r$//' build.sh start.sh && \
+    chmod +x build.sh start.sh
+RUN sh build.sh
 
 # Python 环境准备阶段
 FROM docker.m.daocloud.io/library/python:3.13-bookworm as python-base
@@ -70,46 +71,47 @@ COPY --from=frontend-builder /app/package.json /app/ui/package.json
 COPY --from=frontend-builder /app/node_modules /app/ui/node_modules
 
 # 复制后端构建产物
-COPY --from=backend-builder /app/target /app/backend/target
-COPY scheduler-backend/start.sh /app/backend/
-RUN chmod +x /app/backend/start.sh
+COPY --from=backend-builder /app/target /app/scheduler-backend/target
+COPY scheduler-backend/start.sh /app/scheduler-backend/
+RUN chmod +x /app/scheduler-backend/start.sh
 
 # 复制 Python 工具和依赖
 COPY --from=python-base /usr/local/lib/python3.11 /usr/local/lib/python3.11
 COPY --from=python-base /usr/local/bin/uv /usr/local/bin/uv
 
-# 复制 genie-client
-WORKDIR /app/client
-COPY scheduler-mcp-client/pyproject.toml genie-client/uv.lock ./
+
+# 复制 scheduler-mcp-client
+WORKDIR /app/scheduler-mcp-client
+COPY scheduler-mcp-client/pyproject.toml scheduler-mcp-client/uv.lock ./
 COPY scheduler-mcp-client/app ./app
-COPY scheduler-mcp-client/main.py genie-client/server.py genie-client/start.sh ./
+COPY scheduler-mcp-client/main.py scheduler-mcp-client/server.py scheduler-mcp-client/start.sh ./
 RUN chmod +x start.sh && \
     uv venv .venv && \
     . .venv/bin/activate && \
     export UV_DEFAULT_INDEX="https://pypi.tuna.tsinghua.edu.cn/simple" && uv sync
 
-# 复制 genie-tool
-WORKDIR /app/tool
-COPY scheduler-tool-manager/pyproject.toml genie-tool/uv.lock ./
-COPY scheduler-tool-manager/tools ./genie_tool
-COPY scheduler-tool-manager/server.py genie-tool/start.sh genie-tool/.env_template ./
+# 复制 scheduler-tool-manager
+WORKDIR /app/scheduler-tool-manager
+COPY scheduler-tool-manager/pyproject.toml scheduler-tool-manager/uv.lock ./
+COPY scheduler-tool-manager/tools ./tools
+COPY scheduler-tool-manager/server.py scheduler-tool-manager/start.sh scheduler-tool-manager/.env_template ./
 
 # 创建虚拟环境并安装依赖
 RUN chmod +x start.sh && \
     uv venv .venv && \
     . .venv/bin/activate && \
     export UV_DEFAULT_INDEX="https://pypi.tuna.tsinghua.edu.cn/simple" && uv sync && \
-    mkdir -p /data/genie-tool && \
+    mkdir -p /data/scheduler-tool-manager && \
     cp .env_template .env && \
-    python -m genie_tool.db.db_engine
+    .venv/bin/python -m tools.db.db_engine
 
 # 设置数据卷
-VOLUME ["/data/genie-tool"]
+VOLUME ["/data/scheduler-tool"]
 
 # 复制统一启动脚本
 WORKDIR /app
-COPY start_genie.sh .
-RUN chmod +x start_genie.sh
+COPY start_scheduler_dockerfile.sh .
+RUN chmod +x start_scheduler_dockerfile.sh
 
 EXPOSE 3000 8080 1601
 
@@ -118,4 +120,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000 || exit 1
 
 # 启动所有服务
-CMD ["/bin/bash", "-c", "./start_genie.sh"]
+CMD ["/bin/bash", "-c", "./start_scheduler_dockerfile.sh"]

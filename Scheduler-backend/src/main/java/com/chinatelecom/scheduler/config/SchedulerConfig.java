@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 @Getter
 @Configuration
-public class GenieConfig {
+public class SchedulerConfig {
 
     private Map<String, String> plannerSystemPromptMap = new HashMap<>();
     @Value("${autobots.autoagent.planner.system_prompt:{}}")
@@ -211,6 +211,51 @@ public class GenieConfig {
         this.llmSettingsMap = JSON.parseObject(jsonStr, new TypeReference<Map<String, LLMSettings>>() {
         });
     }
+
+    /**
+     * LLM 开发环境配置
+     */
+    @Value("${llm.dev.base_url:}")
+    private String llmDevBaseUrl;
+
+    @Value("${llm.dev.model:MindIE2_Qwen2.5-14B-Instruct}")
+    private String llmDevModel;
+
+    @Value("${llm.dev.max_tokens:16384}")
+    private Integer llmDevMaxTokens;
+
+    @Value("${llm.dev.temperature:0}")
+    private Double llmDevTemperature;
+
+    @Value("${llm.dev.max_input_tokens:100000}")
+    private Integer llmDevMaxInputTokens;
+
+    @Value("${llm.dev.app_id:}")
+    private String llmDevAppId;
+
+    @Value("${llm.dev.app_key:}")
+    private String llmDevAppKey;
+
+    /**
+     * LLM 生产环境配置
+     */
+    @Value("${llm.production.base_url:}")
+    private String llmProductionBaseUrl;
+
+    @Value("${llm.production.model:Qwen2.5-14B-Instruct}")
+    private String llmProductionModel;
+
+    @Value("${llm.production.max_tokens:16384}")
+    private Integer llmProductionMaxTokens;
+
+    @Value("${llm.production.temperature:0}")
+    private Double llmProductionTemperature;
+
+    @Value("${llm.production.max_input_tokens:100000}")
+    private Integer llmProductionMaxInputTokens;
+
+    @Value("${llm.production.apikey:}")
+    private String llmProductionApikey;
 
     @Value("${autobots.autoagent.planner.max_steps:40}")
     private Integer plannerMaxSteps;

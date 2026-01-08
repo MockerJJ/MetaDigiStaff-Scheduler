@@ -13,7 +13,7 @@ import numpy as np
 from pandas.api.types import is_datetime64_any_dtype, is_numeric_dtype, is_float_dtype
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
-from genie_tool.util.log_util import timer
+from tools.util.log_util import timer
 
 
 class Column(BaseModel):

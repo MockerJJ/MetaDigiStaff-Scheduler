@@ -5,7 +5,7 @@ import com.chinatelecom.scheduler.agent.dto.Message;
 import com.chinatelecom.scheduler.agent.dto.TaskSummaryResult;
 import com.chinatelecom.scheduler.agent.llm.LLM;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
@@ -29,13 +29,13 @@ public class SummaryAgent extends BaseAgent {
 
     public SummaryAgent(AgentContext context) {
         ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-        GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
-        setSystemPrompt(genieConfig.getSummarySystemPrompt());
+        SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
+        setSystemPrompt(schedulerConfig.getSummarySystemPrompt());
 
         setContext(context);
         setRequestId(context.getRequestId());
-        setLlm(new LLM(context.getAgentType() == 3 ? genieConfig.getPlannerModelName() : genieConfig.getReactModelName(), ""));
-        setMessageSizeLimit(genieConfig.getMessageSizeLimit());
+        setLlm(new LLM(context.getAgentType() == 3 ? schedulerConfig.getPlannerModelName() : schedulerConfig.getReactModelName(), ""));
+        setMessageSizeLimit(schedulerConfig.getMessageSizeLimit());
     }
 
     /**

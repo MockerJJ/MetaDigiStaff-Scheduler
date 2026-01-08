@@ -35,10 +35,10 @@ from rich.live import Live
 from rich.markdown import Markdown
 import json_repair
 
-from genie_tool.model.code import CodeOuput
-from genie_tool.tool.final_answer_check import FinalAnswerCheck
-from genie_tool.util.file_util import generate_data_id
-from genie_tool.util.log_util import timer
+from tools.model.code import CodeOuput
+from tools.tool.final_answer_check import FinalAnswerCheck
+from tools.util.file_util import generate_data_id
+from tools.util.log_util import timer
 
 
 class CIAgent(CodeAgent):

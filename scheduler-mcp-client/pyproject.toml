@@ -1,5 +1,5 @@
 [project]
-name = "genie-client"
+name = "scheduler-mcp-client"
 version = "0.1.0"
 description = "FastAPI-based web service client for Model Context Protocol (MCP) servers"
 readme = "README.md"

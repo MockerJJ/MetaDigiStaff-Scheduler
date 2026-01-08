@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.chinatelecom.scheduler.agent.dto.Message;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,6 +54,10 @@ public class LLM {
     private final TokenCounter tokenCounter;
     private final ObjectMapper objectMapper;
     private final Map<String, Object> extParams;
+    private final String appEnv;
+    private final String appId;
+    private final String appKey;
+    private final Boolean useFullUrl;
 
     private int totalInputTokens;
     private Integer maxInputTokens;
@@ -73,6 +77,10 @@ public class LLM {
         this.totalInputTokens = 0;
         this.maxInputTokens = config.getMaxInputTokens();
         this.extParams = config.getExtParams();
+        this.appEnv = config.getAppEnv() != null ? config.getAppEnv() : "dev";
+        this.appId = config.getAppId();
+        this.appKey = config.getAppKey();
+        this.useFullUrl = config.getUseFullUrl() != null ? config.getUseFullUrl() : false;
 
         // 初始化 tokenizer
         this.tokenCounter = new TokenCounter();
@@ -131,8 +139,8 @@ public class LLM {
                 }
             } else if (message.getToolCallId() != null && !message.getToolCallId().isEmpty()) {
                 // 敏感词过滤
-                GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-                String content = StringUtil.textDesensitization(message.getContent(), genieConfig.getSensitivePatterns());
+                SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+                String content = StringUtil.textDesensitization(message.getContent(), schedulerConfig.getSensitivePatterns());
                 if (isClaude) {
                     // Claude格式的工具调用结果处理
                     messageMap.put("role", "user");
@@ -381,8 +389,8 @@ public class LLM {
             StringBuilder stringBuilder = new StringBuilder();
             List<Map<String, Object>> formattedTools = new ArrayList<>();
             if ("struct_parse".equals(functionCallType)) {
-                GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-                stringBuilder.append(genieConfig.getStructParseToolSystemPrompt());
+                SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+                stringBuilder.append(schedulerConfig.getStructParseToolSystemPrompt());
                 // base tool
                 for (BaseTool tool : tools.getToolMap().values()) {
                     Map<String, Object> functionMap = new HashMap<>();
@@ -553,6 +561,42 @@ public class LLM {
     }
 
     /**
+     * 构建完整的 API 端点 URL
+     */
+    private String buildApiEndpoint() {
+        if (useFullUrl && StringUtils.isNotEmpty(baseUrl)) {
+            return baseUrl;
+        }
+        if (StringUtils.isNotEmpty(interfaceUrl)) {
+            return baseUrl + interfaceUrl;
+        }
+        return baseUrl + "/v1/chat/completions";
+    }
+
+    /**
+     * 根据环境构建请求头（完全按照参考文件 llm_embeding_infra.py 的逻辑）
+     */
+    private void buildRequestHeaders(Request.Builder requestBuilder) {
+        requestBuilder.addHeader("Content-Type", "application/json");
+        
+        // 判断是否为生产环境（参考文件：app_env in ['production', 'prod']）
+        boolean isProduction = "production".equalsIgnoreCase(appEnv) || "prod".equalsIgnoreCase(appEnv);
+        
+        if (isProduction) {
+            // 生产环境：只使用 Content-Type header（参考文件第112行）
+            // 注意：参考文件中生产环境没有使用 Authorization header
+        } else {
+            // 开发环境：使用 X-APP-ID 和 X-APP-KEY（参考文件第167-170行）
+            if (StringUtils.isNotEmpty(appId)) {
+                requestBuilder.addHeader("X-APP-ID", appId);
+            }
+            if (StringUtils.isNotEmpty(appKey)) {
+                requestBuilder.addHeader("X-APP-KEY", appKey);
+            }
+        }
+    }
+
+    /**
      * 调用 OpenAI API（抽象方法，实际实现需要在子类中提供）
      */
     protected CompletableFuture<String> callOpenAI(Map<String, Object> params, int timeout) {
@@ -565,7 +609,7 @@ public class LLM {
                     .writeTimeout(timeout, TimeUnit.SECONDS)
                     .build();
 
-            String apiEndpoint = baseUrl + interfaceUrl;
+            String apiEndpoint = buildApiEndpoint();
 
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
@@ -576,8 +620,8 @@ public class LLM {
                     .url(apiEndpoint)
                     .post(body);
 
-            // 添加适当的认证头
-            requestBuilder.addHeader("Authorization", "Bearer " + apiKey);
+            // 根据环境构建请求头
+            buildRequestHeaders(requestBuilder);
 
             Request request = requestBuilder.build();
 
@@ -619,7 +663,7 @@ public class LLM {
                     .writeTimeout(300, TimeUnit.SECONDS)
                     .build();
 
-            String apiEndpoint = baseUrl + interfaceUrl;
+            String apiEndpoint = buildApiEndpoint();
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
                     objectMapper.writeValueAsString(params)
@@ -627,12 +671,12 @@ public class LLM {
             Request.Builder requestBuilder = new Request.Builder()
                     .url(apiEndpoint)
                     .post(body);
-            // 添加适当的认证头
-            requestBuilder.addHeader("Authorization", "Bearer " + apiKey);
+            // 根据环境构建请求头
+            buildRequestHeaders(requestBuilder);
             Request request = requestBuilder.build();
 
-            GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-            String[] interval = genieConfig.getMessageInterval().getOrDefault("llm", "1,3").split(",");
+            SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+            String[] interval = schedulerConfig.getMessageInterval().getOrDefault("llm", "1,3").split(",");
             int firstInterval = "struct_parse".equals(functionCallType) ? Math.max(3, Integer.parseInt(interval[0])) : Integer.parseInt(interval[0]);
             int sendInterval = Integer.parseInt(interval[1]);
 
@@ -811,7 +855,7 @@ public class LLM {
                     .writeTimeout(300, TimeUnit.SECONDS)
                     .build();
 
-            String apiEndpoint = baseUrl + interfaceUrl;
+            String apiEndpoint = buildApiEndpoint();
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
                     objectMapper.writeValueAsString(params)
@@ -819,12 +863,12 @@ public class LLM {
             Request.Builder requestBuilder = new Request.Builder()
                     .url(apiEndpoint)
                     .post(body);
-            // 添加适当的认证头
-            requestBuilder.addHeader("Authorization", "Bearer " + apiKey);
+            // 根据环境构建请求头
+            buildRequestHeaders(requestBuilder);
             Request request = requestBuilder.build();
 
-            GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-            String[] interval = genieConfig.getMessageInterval().getOrDefault("llm", "1,3").split(",");
+            SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+            String[] interval = schedulerConfig.getMessageInterval().getOrDefault("llm", "1,3").split(",");
             int firstInterval = "struct_parse".equals(functionCallType) ? Math.max(3, Integer.parseInt(interval[0])) : Integer.parseInt(interval[0]);
             int sendInterval = Integer.parseInt(interval[1]);
 

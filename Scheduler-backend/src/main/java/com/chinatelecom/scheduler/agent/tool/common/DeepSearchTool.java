@@ -9,7 +9,7 @@ import com.chinatelecom.scheduler.agent.dto.FileRequest;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
 import com.chinatelecom.scheduler.agent.util.StringUtil;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -40,16 +40,16 @@ public class DeepSearchTool implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "这是一个搜索工具，可以通过搜索内外网知识";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        return genieConfig.getDeepSearchToolDesc().isEmpty() ? desc : genieConfig.getDeepSearchToolDesc();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        return schedulerConfig.getDeepSearchToolDesc().isEmpty() ? desc : schedulerConfig.getDeepSearchToolDesc();
     }
 
     @Override
     public Map<String, Object> toParams() {
 
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getDeepSearchToolPamras().isEmpty()) {
-            return genieConfig.getDeepSearchToolPamras();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getDeepSearchToolPamras().isEmpty()) {
+            return schedulerConfig.getDeepSearchToolPamras();
         }
 
         Map<String, Object> taskParam = new HashMap<>();
@@ -70,13 +70,13 @@ public class DeepSearchTool implements BaseTool {
         long startTime = System.currentTimeMillis();
 
         try {
-            GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
+            SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
             Map<String, Object> params = (Map<String, Object>) input;
             String query = (String) params.get("query");
             Map<String, Object> srcConfig = new HashMap<>();
 
             Map<String, Object> bingConfig = new HashMap<>();
-            bingConfig.put("count", Integer.parseInt(genieConfig.getDeepSearchPageCount()));
+            bingConfig.put("count", Integer.parseInt(schedulerConfig.getDeepSearchPageCount()));
             srcConfig.put("bing", bingConfig);
             DeepSearchRequest request = DeepSearchRequest.builder()
                     .request_id(agentContext.getRequestId() + ":" + StringUtil.generateRandomString(5))
@@ -114,8 +114,8 @@ public class DeepSearchTool implements BaseTool {
                     .build();
 
             ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-            GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
-            String url = genieConfig.getDeepSearchUrl() + "/v1/tool/deepsearch";
+            SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
+            String url = schedulerConfig.getDeepSearchUrl() + "/v1/tool/deepsearch";
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
                     JSONObject.toJSONString(searchRequest)
@@ -127,7 +127,7 @@ public class DeepSearchTool implements BaseTool {
                     .post(body);
             Request request = requestBuilder.build();
 
-            String[] interval = genieConfig.getMessageInterval().getOrDefault("search", "5,20").split(",");
+            String[] interval = schedulerConfig.getMessageInterval().getOrDefault("search", "5,20").split(",");
             int firstInterval = Integer.parseInt(interval[0]);
             int sendInterval = Integer.parseInt(interval[1]);
 
@@ -183,7 +183,7 @@ public class DeepSearchTool implements BaseTool {
                                     }
                                     String fileName = StringUtil.removeSpecialChars(searchResponse.getQuery() + "的搜索结果.md");
                                     String fileDesc = searchResponse.getAnswer()
-                                            .substring(0, Math.min(searchResponse.getAnswer().length(), genieConfig.getDeepSearchToolFileDescTruncateLen())) + "...";
+                                            .substring(0, Math.min(searchResponse.getAnswer().length(), schedulerConfig.getDeepSearchToolFileDescTruncateLen())) + "...";
                                     FileRequest fileRequest = FileRequest.builder()
                                             .requestId(agentContext.getRequestId())
                                             .fileName(fileName)
@@ -192,7 +192,7 @@ public class DeepSearchTool implements BaseTool {
                                             .build();
                                     fileTool.uploadFile(fileRequest, false, false);
                                     result = searchResponse.getAnswer().
-                                            substring(0, Math.min(searchResponse.getAnswer().length(), genieConfig.getDeepSearchToolMessageTruncateLen()));
+                                            substring(0, Math.min(searchResponse.getAnswer().length(), schedulerConfig.getDeepSearchToolMessageTruncateLen()));
 
                                     agentContext.getPrinter().send(messageId, "deep_search", searchResponse, digitalEmployee, true);
 

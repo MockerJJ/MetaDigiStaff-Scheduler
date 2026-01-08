@@ -11,8 +11,8 @@ from typing import List, Optional
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue, MatchAny
 
-from genie_tool.util.log_util import logger, timer
-from genie_tool.util.qdrant_utils import EmbeddingClient
+from tools.util.log_util import logger, timer
+from tools.util.qdrant_utils import EmbeddingClient
 
 load_dotenv()  # 加载 .env 文件
 

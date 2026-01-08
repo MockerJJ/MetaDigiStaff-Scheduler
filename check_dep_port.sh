@@ -1,5 +1,5 @@
 #!/bin/bash
-chmod +x Genie_start.sh
+chmod +x scheduler_start.sh
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'

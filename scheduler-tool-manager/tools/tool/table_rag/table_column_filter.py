@@ -13,10 +13,10 @@ from datetime import date
 from typing import List, Dict
 from jinja2 import Template
 
-from genie_tool.util.prompt_util import get_prompt
-from genie_tool.util.log_util import logger
-from genie_tool.util.llm_util import ask_llm
-from genie_tool.tool.table_rag.utils import read_json
+from tools.util.prompt_util import get_prompt
+from tools.util.log_util import logger
+from tools.util.llm_util import ask_llm
+from tools.tool.table_rag.utils import read_json
 
 class ColumnFilterModule:
     

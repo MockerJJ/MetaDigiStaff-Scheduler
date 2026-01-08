@@ -7,7 +7,7 @@ import com.chinatelecom.scheduler.agent.dto.CodeInterpreterResponse;
 import com.chinatelecom.scheduler.agent.dto.File;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -36,16 +36,16 @@ public class CodeInterpreterTool implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "这是一个代码工具，可以通过编写代码完成数据处理、数据分析、图表生成等任务";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        return genieConfig.getCodeAgentDesc().isEmpty() ? desc : genieConfig.getCodeAgentDesc();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        return schedulerConfig.getCodeAgentDesc().isEmpty() ? desc : schedulerConfig.getCodeAgentDesc();
     }
 
     @Override
     public Map<String, Object> toParams() {
 
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getCodeAgentPamras().isEmpty()) {
-            return genieConfig.getCodeAgentPamras();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getCodeAgentPamras().isEmpty()) {
+            return schedulerConfig.getCodeAgentPamras();
         }
 
         Map<String, Object> taskParam = new HashMap<>();
@@ -100,8 +100,8 @@ public class CodeInterpreterTool implements BaseTool {
                     .build();
 
             ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-            GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
-            String url = genieConfig.getCodeInterpreterUrl() + "/v1/tool/code_interpreter";
+            SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
+            String url = schedulerConfig.getCodeInterpreterUrl() + "/v1/tool/code_interpreter";
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"),
                     JSONObject.toJSONString(codeRequest)

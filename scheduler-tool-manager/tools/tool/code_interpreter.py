@@ -17,12 +17,12 @@ import yaml
 from jinja2 import Template
 from smolagents import LiteLLMModel, FinalAnswerStep, PythonInterpreterTool, ChatMessageStreamDelta
 
-from genie_tool.tool.ci_agent import CIAgent
-from genie_tool.util.file_util import download_all_files_in_path, upload_file, upload_file_by_path
-from genie_tool.util.log_util import timer
-from genie_tool.util.prompt_util import get_prompt
+from tools.tool.ci_agent import CIAgent
+from tools.util.file_util import download_all_files_in_path, upload_file, upload_file_by_path
+from tools.util.log_util import timer
+from tools.util.prompt_util import get_prompt
 import requests
-from genie_tool.model.code import ActionOutput, CodeOuput
+from tools.model.code import ActionOutput, CodeOuput
 
 @timer()
 async def code_interpreter_agent(

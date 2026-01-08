@@ -37,7 +37,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 def init_db():
-    from genie_tool.db.file_table import FileInfo
+    from tools.db.file_table import FileInfo
     SQLModel.metadata.create_all(engine)
     logger.info(f"DB init done")
 

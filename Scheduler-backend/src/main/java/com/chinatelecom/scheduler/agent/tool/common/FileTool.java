@@ -9,7 +9,7 @@ import com.chinatelecom.scheduler.agent.dto.FileResponse;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
 import com.chinatelecom.scheduler.agent.util.StringUtil;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -33,16 +33,16 @@ public class FileTool implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "这是一个文件工具，可以上传或下载文件";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        return genieConfig.getFileToolDesc().isEmpty() ? desc : genieConfig.getFileToolDesc();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        return schedulerConfig.getFileToolDesc().isEmpty() ? desc : schedulerConfig.getFileToolDesc();
     }
 
     @Override
     public Map<String, Object> toParams() {
 
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getFileToolDesc().isEmpty()) {
-            return genieConfig.getFileToolPamras();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getFileToolDesc().isEmpty()) {
+            return schedulerConfig.getFileToolPamras();
         }
 
         Map<String, Object> command = new HashMap<>();
@@ -103,9 +103,9 @@ public class FileTool implements BaseTool {
                 .build();
 
         ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-        GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
+        SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
         MediaType mediaType = MediaType.get("application/json; charset=utf-8");
-        String url = genieConfig.getCodeInterpreterUrl() + "/v1/file_tool/upload_file";
+        String url = schedulerConfig.getCodeInterpreterUrl() + "/v1/file_tool/upload_file";
 
         // 构建请求体 多轮对话替换requestId为sessionId
         fileRequest.setRequestId(agentContext.getSessionId());
@@ -186,9 +186,9 @@ public class FileTool implements BaseTool {
                 .build();
 
         ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-        GenieConfig genieConfig = applicationContext.getBean(GenieConfig.class);
+        SchedulerConfig schedulerConfig = applicationContext.getBean(SchedulerConfig.class);
         MediaType mediaType = MediaType.get("application/json; charset=utf-8");
-        String url = genieConfig.getCodeInterpreterUrl() + "/v1/file_tool/get_file";
+        String url = schedulerConfig.getCodeInterpreterUrl() + "/v1/file_tool/get_file";
         // 构建请求体
         FileRequest getFileRequest = FileRequest.builder()
                 .requestId(agentContext.getRequestId())
@@ -234,8 +234,8 @@ public class FileTool implements BaseTool {
             // 返回工具执行结果
             String fileContent = getUrlContent(fileResponse.getOssUrl());
             if (Objects.nonNull(fileContent)) {
-                if (fileContent.length() > genieConfig.getFileToolContentTruncateLen()) {
-                    fileContent = fileContent.substring(0, genieConfig.getFileToolContentTruncateLen());
+                if (fileContent.length() > schedulerConfig.getFileToolContentTruncateLen()) {
+                    fileContent = fileContent.substring(0, schedulerConfig.getFileToolContentTruncateLen());
                 }
 
                 return "文件内容 " + fileContent;

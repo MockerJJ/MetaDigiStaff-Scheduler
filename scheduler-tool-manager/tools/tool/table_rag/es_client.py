@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from elasticsearch import Elasticsearch, helpers
 
-from genie_tool.util.log_util import logger
+from tools.util.log_util import logger
 
 # 加载 .env 文件
 load_dotenv()

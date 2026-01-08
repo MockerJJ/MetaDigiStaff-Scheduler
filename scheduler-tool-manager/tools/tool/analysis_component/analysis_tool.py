@@ -16,10 +16,10 @@ import pandas as pd
 from loguru import logger
 import sqlparse
 
-from genie_tool.util.log_util import timer
-from genie_tool.tool.analysis_component.schema_data import get_data
-from genie_tool.tool.analysis_component.data_model import DataModel, Measure, SiblingGroup
-from genie_tool.tool.analysis_component.insights import InsightFactoryDict, InsightType
+from tools.util.log_util import timer
+from tools.tool.analysis_component.schema_data import get_data
+from tools.tool.analysis_component.data_model import DataModel, Measure, SiblingGroup
+from tools.tool.analysis_component.insights import InsightFactoryDict, InsightType
 
 
 pd.set_option("display.max_columns", None)

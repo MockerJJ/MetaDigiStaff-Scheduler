@@ -7,7 +7,7 @@ import com.chinatelecom.scheduler.agent.agent.SummaryAgent;
 import com.chinatelecom.scheduler.agent.dto.File;
 import com.chinatelecom.scheduler.agent.dto.TaskSummaryResult;
 import com.chinatelecom.scheduler.agent.enums.AgentType;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.model.req.AgentRequest;
 import com.chinatelecom.scheduler.service.AgentHandlerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import java.util.*;
 public class ReactHandlerImpl implements AgentHandlerService {
 
     @Autowired
-    private GenieConfig genieConfig;
+    private SchedulerConfig schedulerConfig;
 
 
     @Override

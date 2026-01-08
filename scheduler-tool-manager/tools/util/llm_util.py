@@ -11,14 +11,15 @@ from typing import List, Any, Optional
 
 from litellm import acompletion
 
-from genie_tool.util.log_util import timer, AsyncTimer
-from genie_tool.util.sensitive_detection import SensitiveWordsReplace
+from tools.util.log_util import timer, AsyncTimer
+from tools.util.sensitive_detection import SensitiveWordsReplace
+from tools.util.llm_config import get_llm_config
 
 
 @timer(key="enter")
 async def ask_llm(
         messages: str | List[Any],
-        model: str,
+        model: str = None,
         temperature: float = None,
         top_p: float = None,
         stream: bool = False,
@@ -38,15 +39,44 @@ async def ask_llm(
             else:
                 message["content"] = json.loads(
                     SensitiveWordsReplace.replace(json.dumps(message["content"], ensure_ascii=False)))
-    response = await acompletion(
-        messages=messages,
-        model=model,
-        temperature=temperature,
-        top_p=top_p,
-        stream=stream,
-        extra_headers=extra_headers,
+    
+    # 获取 LLM 配置
+    llm_config = get_llm_config()
+    
+    # 使用配置中的模型名称（如果未指定）
+    if model is None:
+        model = llm_config.get_model()
+    
+    # 使用配置中的温度（如果未指定）
+    if temperature is None:
+        temperature = llm_config.temperature
+    
+    # 合并请求头
+    headers = llm_config.get_headers()
+    if extra_headers:
+        headers.update(extra_headers)
+    
+    # 获取基础 URL（会自动处理完整 URL，提取基础部分）
+    base_url = llm_config.get_base_url()
+    
+    # 构建 litellm 参数
+    litellm_params = {
+        "messages": messages,
+        "model": model,
+        "temperature": temperature,
+        "top_p": top_p,
+        "stream": stream,
+        "api_base": base_url,
+        "extra_headers": headers,
         **kwargs
-    )
+    }
+    
+    # 如果有 API Key（生产环境），添加到参数中
+    api_key = llm_config.get_api_key()
+    if api_key:
+        litellm_params["api_key"] = api_key
+    
+    response = await acompletion(**litellm_params)
     async with AsyncTimer(key=f"exec ask_llm"):
         if stream:
             async for chunk in response:

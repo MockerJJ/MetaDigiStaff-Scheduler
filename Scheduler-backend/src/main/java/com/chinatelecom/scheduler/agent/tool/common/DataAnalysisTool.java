@@ -10,7 +10,7 @@ import com.chinatelecom.scheduler.agent.dto.File;
 import com.chinatelecom.scheduler.agent.tool.BaseTool;
 import com.chinatelecom.scheduler.agent.util.SpringContextHolder;
 import com.chinatelecom.scheduler.agent.util.StringUtil;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.model.response.AgentResponse;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -37,16 +37,16 @@ public class DataAnalysisTool implements BaseTool {
     @Override
     public String getDescription() {
         String desc = "这是一个数据分析工具，可以查询并分析数据";
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        StringBuilder description = new StringBuilder(genieConfig.getDataAnalysisToolDesc().isEmpty() ? desc : genieConfig.getDataAnalysisToolDesc());
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        StringBuilder description = new StringBuilder(schedulerConfig.getDataAnalysisToolDesc().isEmpty() ? desc : schedulerConfig.getDataAnalysisToolDesc());
         return description.toString();
     }
 
     @Override
     public Map<String, Object> toParams() {
-        GenieConfig genieConfig = SpringContextHolder.getApplicationContext().getBean(GenieConfig.class);
-        if (!genieConfig.getDataAnalysisToolPamras().isEmpty()) {
-            return genieConfig.getDataAnalysisToolPamras();
+        SchedulerConfig schedulerConfig = SpringContextHolder.getApplicationContext().getBean(SchedulerConfig.class);
+        if (!schedulerConfig.getDataAnalysisToolPamras().isEmpty()) {
+            return schedulerConfig.getDataAnalysisToolPamras();
         }
 
         Map<String, Object> taskParam = new HashMap<>();
@@ -113,7 +113,7 @@ public class DataAnalysisTool implements BaseTool {
                     .build();
 
             ApplicationContext applicationContext = SpringContextHolder.getApplicationContext();
-            GenieConfig duccConfig = applicationContext.getBean(GenieConfig.class);
+            SchedulerConfig duccConfig = applicationContext.getBean(SchedulerConfig.class);
             // 使用默认的自动分析API URL
             String url = duccConfig.getDataAnalysisUrl() + "/v1/tool/auto_analysis";
             

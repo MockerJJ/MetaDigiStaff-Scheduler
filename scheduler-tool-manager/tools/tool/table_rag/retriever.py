@@ -7,9 +7,9 @@ from typing import Optional
 from dotenv import load_dotenv
 
 import requests
-from genie_tool.util.log_util import logger
-from genie_tool.tool.table_rag.es_client import ElasticsearchClient
-from genie_tool.tool.table_rag.qdrant_recall import get_qd_recall, get_qd_server_recall
+from tools.util.log_util import logger
+from tools.tool.table_rag.es_client import ElasticsearchClient
+from tools.tool.table_rag.qdrant_recall import get_qd_recall, get_qd_server_recall
 
 # 加载 .env 文件
 load_dotenv()

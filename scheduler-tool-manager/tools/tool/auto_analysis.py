@@ -17,15 +17,15 @@ import pandas as pd
 from smolagents import PythonInterpreterTool, Tool, ActionStep, ActionOutput, ToolCall, FinalAnswerStep
 from smolagents import CodeAgent, OpenAIServerModel
 
-from genie_tool.util.log_util import timer
-from genie_tool.util.file_util import upload_file
-from genie_tool.util.prompt_util import get_prompt
+from tools.util.log_util import timer
+from tools.util.file_util import upload_file
+from tools.util.prompt_util import get_prompt
 
-from genie_tool.model.context import AnalysisContext
+from tools.model.context import AnalysisContext
 
-from genie_tool.tool.analysis_component.schema_data import get_schema
-from genie_tool.tool.analysis_component.insights import InsightType
-from genie_tool.tool.analysis_component.analysis_tool import GetDataTool, DataTransTool, InsightTool, SaveInsightTool, FinalAnswerTool
+from tools.tool.analysis_component.schema_data import get_schema
+from tools.tool.analysis_component.insights import InsightType
+from tools.tool.analysis_component.analysis_tool import GetDataTool, DataTransTool, InsightTool, SaveInsightTool, FinalAnswerTool
 
 
 load_dotenv()
@@ -154,13 +154,23 @@ def create_agent(
         max_steps: int = 10,
         return_full_result: bool = False,
 ) -> CodeAgent:
-    model = os.getenv("ANALYSIS_MODEL", "gpt-4.1")
-    base_url = os.getenv("OPENAI_BASE_URL")
-    api_key = os.getenv("OPENAI_API_KEY")
+    # 使用统一的 LLM 配置
+    from tools.util.llm_config import get_llm_config
+    llm_config = get_llm_config()
+    
+    model = os.getenv("ANALYSIS_MODEL", llm_config.get_model())
+    base_url = llm_config.get_base_url()
+    api_key = llm_config.get_api_key()
+    
+    # 获取 headers（用于 smolagents 的额外配置）
+    headers = llm_config.get_headers()
+    
     _model = OpenAIServerModel(
         model_id=model,
         api_base=base_url,
-        api_key=api_key,
+        api_key=api_key or "dummy",  # smolagents 需要 api_key
+        # 注意：smolagents 可能不支持直接设置 headers，需要查看其文档
+        # 如果支持，可以通过 extra_headers 或其他参数传递
     )
     
     return CodeAgent(

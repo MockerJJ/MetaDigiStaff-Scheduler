@@ -11,7 +11,7 @@ import com.chinatelecom.scheduler.agent.dto.TaskSummaryResult;
 import com.chinatelecom.scheduler.agent.enums.AgentState;
 import com.chinatelecom.scheduler.agent.enums.AgentType;
 import com.chinatelecom.scheduler.agent.util.ThreadUtil;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.model.req.AgentRequest;
 import com.chinatelecom.scheduler.service.AgentHandlerService;
 import com.chinatelecom.scheduler.service.SopRecallService;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class PlanSolveHandlerImpl implements AgentHandlerService {
 
     @Autowired
-    private GenieConfig genieConfig;
+    private SchedulerConfig schedulerConfig;
 
     @Autowired
     private SopRecallService sopRecallService;
@@ -49,7 +49,7 @@ public class PlanSolveHandlerImpl implements AgentHandlerService {
 
         String planningResult = planning.run(agentContext.getQuery());
         int stepIdx = 0;
-        int maxStepNum = genieConfig.getPlannerMaxSteps();
+        int maxStepNum = schedulerConfig.getPlannerMaxSteps();
         while (stepIdx <= maxStepNum) {
             List<String> planningResults = Arrays.stream(planningResult.split("<sep>"))
                     .map(task -> "你的任务是：" + task)

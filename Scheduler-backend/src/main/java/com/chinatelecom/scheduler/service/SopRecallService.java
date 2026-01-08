@@ -3,7 +3,7 @@ package com.chinatelecom.scheduler.service;
 import com.alibaba.fastjson.JSON;
 import com.chinatelecom.scheduler.agent.dto.SopRecallRequest;
 import com.chinatelecom.scheduler.agent.dto.SopRecallResponse;
-import com.chinatelecom.scheduler.config.GenieConfig;
+import com.chinatelecom.scheduler.config.SchedulerConfig;
 import com.chinatelecom.scheduler.util.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +21,7 @@ import java.util.Map;
 public class SopRecallService {
 
     @Autowired
-    private GenieConfig genieConfig;
+    private SchedulerConfig schedulerConfig;
 
     /**
      * 调用SOP召回服务
@@ -32,7 +32,7 @@ public class SopRecallService {
      */
     public SopRecallResponse sopRecall(String requestId, String query) {
         try {
-            String SOP_RECALL_URL = genieConfig.getAutoBotsKnowledgeUrl() + "/v1/tool/sopRecall";
+            String SOP_RECALL_URL = schedulerConfig.getAutoBotsKnowledgeUrl() + "/v1/tool/sopRecall";
 
             // 构建请求参数
             SopRecallRequest request = SopRecallRequest.builder()
