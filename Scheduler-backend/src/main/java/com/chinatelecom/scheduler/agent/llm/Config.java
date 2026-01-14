@@ -77,6 +77,7 @@ public class Config {
                 .appKey(StringUtils.isNotEmpty(config.getAppKey()) ? config.getAppKey() : defaultConfig.getAppKey())
                 .useFullUrl(useFullUrl)
                 .extParams(config.getExtParams() != null ? config.getExtParams() : defaultConfig.getExtParams())
+                .stream(config.getStream())
                 .build();
     }
 

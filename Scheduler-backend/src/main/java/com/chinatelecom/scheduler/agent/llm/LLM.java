@@ -58,6 +58,7 @@ public class LLM {
     private final String appId;
     private final String appKey;
     private final Boolean useFullUrl;
+    private final Boolean stream;
 
     private int totalInputTokens;
     private Integer maxInputTokens;
@@ -81,6 +82,7 @@ public class LLM {
         this.appId = config.getAppId();
         this.appKey = config.getAppKey();
         this.useFullUrl = config.getUseFullUrl() != null ? config.getUseFullUrl() : false;
+        this.stream = config.getStream() != null ? config.getStream() : false;
 
         // 初始化 tokenizer
         this.tokenCounter = new TokenCounter();
@@ -375,6 +377,7 @@ public class LLM {
             boolean stream,
             int timeout
     ) {
+        log.info("askTool");
         try {
             // 验证 toolChoice
             if (!ToolChoice.isValid(toolChoice)) {
@@ -578,14 +581,11 @@ public class LLM {
      */
     private void buildRequestHeaders(Request.Builder requestBuilder) {
         requestBuilder.addHeader("Content-Type", "application/json");
-        
+
         // 判断是否为生产环境（参考文件：app_env in ['production', 'prod']）
         boolean isProduction = "production".equalsIgnoreCase(appEnv) || "prod".equalsIgnoreCase(appEnv);
-        
-        if (isProduction) {
-            // 生产环境：只使用 Content-Type header（参考文件第112行）
-            // 注意：参考文件中生产环境没有使用 Authorization header
-        } else {
+
+        if (!isProduction) {
             // 开发环境：使用 X-APP-ID 和 X-APP-KEY（参考文件第167-170行）
             if (StringUtils.isNotEmpty(appId)) {
                 requestBuilder.addHeader("X-APP-ID", appId);
@@ -600,6 +600,7 @@ public class LLM {
      * 调用 OpenAI API（抽象方法，实际实现需要在子类中提供）
      */
     protected CompletableFuture<String> callOpenAI(Map<String, Object> params, int timeout) {
+        log.info("callOpenAI");
         CompletableFuture<String> future = new CompletableFuture<>();
 
         try {
@@ -655,6 +656,7 @@ public class LLM {
      * 调用 OpenAI 流式 API（抽象方法，实际实现需要在子类中提供）
      */
     public CompletableFuture<ToolCallResponse> callOpenAIFunctionCallStream(AgentContext context, Map<String, Object> params) {
+        log.info("callOpenAIFunctionCallStream");
         CompletableFuture<ToolCallResponse> future = new CompletableFuture<>();
         try {
             OkHttpClient client = new OkHttpClient.Builder()
@@ -690,6 +692,7 @@ public class LLM {
                 public void onResponse(Call call, Response response) {
                     boolean isFirstToken = true;
                     boolean isContent = true;
+                    log.debug("tool call response is: {}", response);
                     try (ResponseBody responseBody = response.body()) {
                         if (!response.isSuccessful() || responseBody == null) {
                             log.error("{} ask tool stream response error or empty", context.getRequestId());
@@ -728,7 +731,6 @@ public class LLM {
                                                     stringBuilderAll.append(content);
                                                     continue;
                                                 }
-                                                stringBuilder.append(content);
                                                 stringBuilderAll.append(content);
                                                 if ("struct_parse".equals(functionCallType)) {
                                                     if (stringBuilderAll.toString().contains("```json")) {
@@ -788,9 +790,14 @@ public class LLM {
                                 context.getPrinter().send(messageId, context.getStreamMessageType(), contentAll, true);
                             }
                         } else { // function_call
-                            if (!contentAll.isEmpty()) {
+                            // 流式结束时，只发送剩余的增量内容和最终的完整内容
+                            // 如果stringBuilder还有剩余内容（未达到发送间隔的），先发送剩余增量
+                            if (stringBuilder.length() > 0) {
                                 context.getPrinter().send(messageId, context.getStreamMessageType(), stringBuilder.toString(), false);
-                                context.getPrinter().send(messageId, context.getStreamMessageType(), stringBuilderAll.toString(), true);
+                            }
+                            // 最后发送完整的累积内容，标记为final
+                            if (!contentAll.isEmpty()) {
+                                context.getPrinter().send(messageId, context.getStreamMessageType(), contentAll, true);
                             }
                         }
 

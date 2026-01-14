@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  # Backend 服务 (Java Spring Boot)
+  scheduler-backend:
+    build:
+      context: ../..
+      dockerfile: dev-ops/dev/scheduler-backend/Dockerfile
+    image: scheduler-backend:latest
+    container_name: scheduler-backend
+    ports:
+      - "8080:8080"  # Backend (Java Spring Boot)
+    environment:
+      APP_ENV: dev
+      TZ: Asia/Shanghai
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --max-time 5 http://localhost:8080/web/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+
+  # Tool Manager + MCP Client 服务
+  scheduler-tool:
+    build:
+      context: ../..
+      dockerfile: dev-ops/dev/scheduler-tool/Dockerfile
+    image: scheduler-tool:latest
+    container_name: scheduler-tool
+    ports:
+      - "1601:1601"  # Tool Manager (Python FastAPI)
+      - "8188:8188"  # MCP Client (Python FastAPI)
+    environment:
+      APP_ENV: dev
+      TZ: Asia/Shanghai
+    volumes:
+      - scheduler-data:/data/scheduler-tool-manager
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f --max-time 5 http://localhost:1601/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # UI 前端服务
+  scheduler-ui:
+    build:
+      context: ../..
+      dockerfile: dev-ops/dev/scheduler-ui/Dockerfile
+    image: scheduler-ui:latest
+    container_name: dev-scheduler-ui
+    ports:
+      - "3000:3000"
+    environment:
+      SERVICE_BASE_URL: http://scheduler-backend:8080
+      TZ: Asia/Shanghai
+    depends_on:
+      scheduler-backend:
+        condition: service_started
+      scheduler-tool:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  scheduler-data:
+    driver: local
+
+networks:
+  default:
+    name: scheduler-net
+

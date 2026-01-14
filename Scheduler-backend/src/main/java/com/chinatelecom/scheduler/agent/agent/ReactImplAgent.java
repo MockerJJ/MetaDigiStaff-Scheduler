@@ -102,7 +102,6 @@ public class ReactImplAgent extends ReActAgent {
             // 记录响应信息
             if (!context.getIsStream() && response.getContent() != null && !response.getContent().isEmpty()) {
                 printer.send("tool_thought", response.getContent());
-
             }
 
             // 创建并添加助手消息

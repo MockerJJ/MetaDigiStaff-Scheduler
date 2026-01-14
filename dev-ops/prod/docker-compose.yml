@@ -4,8 +4,8 @@ services:
   # Backend + Tool Manager + MCP Client 服务
   scheduler-backend-tool:
     build:
-      context: ..
-      dockerfile: dev-ops/scheduler-backend-and-tool/Dockerfile
+      context: ../..
+      dockerfile: dev-ops/prod/scheduler-backend-and-tool/Dockerfile
     image: scheduler-backend-tool:latest
     container_name: scheduler-backend-tool
     ports:
@@ -25,13 +25,13 @@ services:
       retries: 3
       start_period: 180s
 
-  # UI 前端服务（严格按照原有 Dockerfile：使用 vite preview，端口 3000）
+  # UI 前端服务
   scheduler-ui:
     build:
-      context: ..
-      dockerfile: dev-ops/scheduler-ui/Dockerfile
+      context: ../..
+      dockerfile: dev-ops/prod/scheduler-ui/Dockerfile
     image: scheduler-ui:latest
-    container_name: scheduler-ui
+    container_name: prod-scheduler-ui
     ports:
       - "3000:3000"  # Vite preview 端口（不是 nginx 的 80）
     environment:

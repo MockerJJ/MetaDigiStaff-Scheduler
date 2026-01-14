@@ -7,7 +7,7 @@
 在 `dev-ops` 目录下执行：
 
 ```bash
-docker-compose up -d --build
+docker-compose  -p mds-scheduler-dev up -d --build
 ```
 
 这个命令会：
@@ -102,4 +102,6 @@ docker-compose top
 - 首次启动可能需要几分钟时间构建镜像
 - 确保端口 3000、8080、1601、8188 未被占用
 - 数据会持久化在 Docker volume `scheduler-data` 中
+
+
 

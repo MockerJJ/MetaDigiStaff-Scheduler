@@ -90,4 +90,9 @@ public class LLMSettings {
      */
     private Boolean useFullUrl;
 
+    /**
+     * 是否为流式传输
+     */
+    private Boolean stream;
+
 }

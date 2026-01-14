@@ -97,7 +97,7 @@ RUN sed -i 's/\r$//' start.sh || true && \
 
 # 复制启动脚本
 WORKDIR /app
-COPY dev-ops/scheduler-backend-and-tool/start_backend_tool.sh .
+COPY dev-ops/prod/scheduler-backend-and-tool/start_backend_tool.sh .
 RUN chmod +x start_backend_tool.sh
 
 # 暴露端口
